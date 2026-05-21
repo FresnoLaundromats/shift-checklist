@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shift Checklist</title>
+    <link rel="stylesheet" href="style.css?v=backend-1" />
+  </head>
+  <body>
+    <div class="bubble-layer" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-row">
+          <h1>Shift Checklist</h1>
+          <div class="logo-pair" aria-label="SuperClean and Dirty Bird">
+            <img class="brand-logo dirty-bird-logo" src="assets/dirty-bird-basket.png" alt="Dirty Bird" />
+            <img class="brand-logo superclean-logo superclean-mobile" src="assets/superclean-clean.png" alt="SuperClean" />
+            <img class="brand-logo superclean-logo superclean-desktop" src="assets/superclean-logo.png" alt="SuperClean Laundromats" />
+          </div>
+        </div>
+        <button class="icon-button" id="reviewButton" type="button" aria-label="Review submissions">
+          <span aria-hidden="true">☑</span>
+        </button>
+      </header>
+
+      <section class="shift-panel" aria-label="Checklist details">
+        <label>
+          <span>Location</span>
+          <select id="locationSelect">
+            <option>Barstow</option>
+            <option>Shaw</option>
+            <option>KC1</option>
+            <option>KC2</option>
+            <option>KC3</option>
+            <option>Belmont</option>
+            <option>Olive</option>
+            <option>McKin</option>
+            <option>Dakota</option>
+            <option>Blackstone</option>
+            <option>Tulare</option>
+            <option>Div</option>
+            <option>West</option>
+            <option>Ashlan</option>
+            <option>Marks</option>
+            <option>Selma</option>
+          </select>
+        </label>
+        <label>
+          <span>Employee</span>
+          <input id="employeeInput" type="text" autocomplete="name" placeholder="Name" />
+        </label>
+      </section>
+
+      <section class="progress-block" aria-label="Completion progress">
+        <div class="progress-copy">
+          <strong id="progressText">0 of 13 complete</strong>
+          <span id="photoText">2 photo items left</span>
+        </div>
+        <div class="meter" aria-hidden="true">
+          <span id="progressBar"></span>
+        </div>
+      </section>
+
+      <section class="checklist" id="checklist" aria-label="Accountability checklist"></section>
+
+      <section class="notes-block">
+        <label for="notesInput">Any Cleaning Supplies Low? Keys Broken? Tools Needed?</label>
+        <textarea id="notesInput" rows="4" placeholder="Do NOT report machines down here, do that in the Machine Repair Log"></textarea>
+      </section>
+
+      <footer class="action-bar">
+        <button class="secondary-button" id="resetButton" type="button">Reset</button>
+        <button class="primary-button" id="submitButton" type="button">Submit checklist</button>
+      </footer>
+    </main>
+
+    <dialog id="summaryDialog">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">Manager review</p>
+          <h2>Accountability summary</h2>
+        </div>
+        <button class="icon-button" id="closeDialog" type="button" aria-label="Close review">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="summary-panel" id="standardsSummary"></div>
+      <div id="submissionList" class="submission-list"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="game.js?v=backend-1"></script>
+  </body>
+</html>
