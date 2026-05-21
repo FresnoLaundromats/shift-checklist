@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Shift Checklist</title>
-    <link rel="stylesheet" href="style.css?v=backend-1" />
+    <link rel="stylesheet" href="style.css?v=thanks-5" />
   </head>
   <body>
     <div class="bubble-layer" aria-hidden="true">
@@ -31,6 +31,11 @@
           <span aria-hidden="true">☑</span>
         </button>
       </header>
+
+      <section id="successMessage" class="success-message" hidden>
+        <strong>Thanks for your submission!</strong>
+        <span>Have a great night!</span>
+      </section>
 
       <section class="shift-panel" aria-label="Checklist details">
         <label>
@@ -78,7 +83,6 @@
       </section>
 
       <footer class="action-bar">
-        <button class="secondary-button" id="resetButton" type="button">Reset</button>
         <button class="primary-button" id="submitButton" type="button">Submit checklist</button>
       </footer>
     </main>
@@ -97,8 +101,47 @@
       <div id="submissionList" class="submission-list"></div>
     </dialog>
 
+    <dialog id="thankYouDialog" class="thank-you-dialog">
+      <div class="thank-you-card">
+        <h2>Thanks for your submission!</h2>
+        <p>Have a great night!</p>
+        <button class="primary-button" id="closeThankYou" type="button">Done</button>
+      </div>
+    </dialog>
+
+    <div id="thankYouFallback" class="thank-you-fallback" hidden>
+      <div class="thank-you-card">
+        <h2>Thanks for your submission!</h2>
+        <p>Have a great night!</p>
+        <button class="primary-button" id="closeThankYouFallback" type="button">Done</button>
+      </div>
+    </div>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="game.js?v=backend-1"></script>
+    <script src="game.js?v=thanks-5"></script>
+    <script>
+      (() => {
+        const button = document.getElementById("submitButton");
+        const banner = document.getElementById("successMessage");
+        const employee = document.getElementById("employeeInput");
+
+        if (!button || !banner || !employee) return;
+
+        button.addEventListener(
+          "click",
+          () => {
+            if (employee.value.trim().length < 2) return;
+
+            setTimeout(() => {
+              banner.hidden = false;
+              button.textContent = "Submitted. Thank you!";
+              banner.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 50);
+          },
+          { capture: true },
+        );
+      })();
+    </script>
   </body>
 </html>
