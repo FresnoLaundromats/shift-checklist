@@ -5,6 +5,11 @@ const checklistItems = [
     detail: "Hi, my name is ___. Let me know if there is anything I can do to help :)",
   },
   {
+    id: "machine-repair-log",
+    title: "Check Digital Machine Repair Log",
+    detail: 'Click this link: <a href="https://machine-repair-survey.onrender.com/" target="_blank" rel="noopener">https://machine-repair-survey.onrender.com/</a>, enter your store, ensure machines are properly marked out. If you see a machine is fixed that is still on the log, please press fixed so it is accurate.',
+  },
+  {
     id: "quick-sweep",
     title: "Quick sweep with wide large broom",
     detail: "Do a fast pass through aisles, folding areas, and high-traffic spots so lint and debris never build up.",
@@ -22,7 +27,7 @@ const checklistItems = [
   },
   {
     id: "lint-traps",
-    title: "Empty lint traps",
+    title: "Vacuum Lint Screens + Lint Chutes",
     detail: "Pull lint from every trap, then vacuum the lint area out completely. Upload a clear photo.",
     photoRequired: true,
   },
@@ -53,13 +58,13 @@ const checklistItems = [
   },
   {
     id: "sweep-floor",
-    title: "Sweep floor",
-    detail: "Sweep under tables, around machines, corners, aisles, and anywhere lint or debris collects.",
+    title: "Clean Floor",
+    detail: "Sweep under tables, around machines, corners, aisles, and anywhere lint or debris collects. Scrape gum off the floor.",
   },
   {
     id: "mop",
     title: "Mop floor",
-    detail: "Gum scraped off floor, floor mopped in direction of tile if applicable, water dumped outside at completion.",
+    detail: "Floor mopped in direction of tile if applicable, water dumped outside at completion.",
   },
   {
     id: "office",
@@ -474,7 +479,7 @@ function renderStandardsSummary(submissions) {
     </div>
     <div class="standard-card">
       <strong>Nightly Homebase audit</strong>
-      <p>At 10 PM, compare tonight's scheduled employees against checklist submissions. Flag anyone with no checklist, under 80% completion, missing Soap dishes or Empty lint traps photos, or repeated missed tasks.</p>
+      <p>At 10 PM, compare tonight's scheduled employees against checklist submissions. Flag anyone with no checklist, under 80% completion, missing Soap dishes or Vacuum Lint Screens + Lint Chutes photos, or repeated missed tasks.</p>
     </div>
     <div class="standard-card">
       <strong>Recommended backend</strong>

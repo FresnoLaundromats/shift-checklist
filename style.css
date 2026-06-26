@@ -416,6 +416,12 @@ textarea:focus {
   line-height: 1.35;
 }
 
+.task-detail a {
+  color: var(--brand);
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
 .task-meta {
   display: flex;
   flex-wrap: wrap;
