@@ -1,75 +1,102 @@
 const checklistItems = [
   {
-    id: "greet",
-    title: "Greet Customers",
-    detail: "Hi, my name is ___. Let me know if there is anything I can do to help :)",
-  },
-  {
-    id: "machine-repair-log",
-    title: "Check Digital Machine Repair Log",
-    detail: 'Click this link: <a href="https://machine-repair-survey.onrender.com/" target="_blank" rel="noopener">https://machine-repair-survey.onrender.com/</a>, enter your store, ensure machines are properly marked out. If you see a machine is fixed that is still on the log, please press fixed so it is accurate.',
-  },
-  {
-    id: "quick-sweep",
-    title: "Quick sweep with wide large broom",
-    detail: "Do a fast pass through aisles, folding areas, and high-traffic spots so lint and debris never build up.",
-  },
-  {
-    id: "trash",
-    title: "Trash out",
-    detail: "Empty full cans, replace liners, and take bags to the dumpster before they overflow.",
-  },
-  {
     id: "soap-dishes",
+    section: "Critical Tasks",
     title: "Soap dishes",
-    detail: "Soap dishes must have zero soap left behind. Wipe every cup clean and upload a clear photo.",
+    detail: "NO residue can be left behind. We have a variety of water holding things and brushes for this. If soap is stuck in the dish and pooling YOU need to clean it with elbow grease. It is not broken. Upload a clear photo.",
     photoRequired: true,
   },
   {
     id: "lint-traps",
+    section: "Critical Tasks",
     title: "Vacuum Lint Screens + Lint Chutes",
+    warning: "WARNING! SAFETY CONCERN",
     detail: "Pull lint from every trap, then vacuum the lint area out completely. Upload a clear photo.",
     photoRequired: true,
   },
   {
+    id: "greet",
+    section: "Closing Tasks",
+    title: "Greet Customers",
+    detail: "Hi, my name is ___. Let me know if there is anything I can do to help :)",
+  },
+  {
+    id: "inspect-store",
+    section: "Closing Tasks",
+    title: "Inspect the Store",
+    detail: "Take a walk around the store and inspect it. Look at everything, see what looks bad - not everything will be on this list and the store appearance is on you! Please take this moment to be honest about what needs to be done. Some examples: Windows, things hung up on walls, build up of debris, the ceiling.",
+  },
+  {
+    id: "machine-repair-log",
+    section: "Closing Tasks",
+    title: "Update Digital Repair Log",
+    detail: `<a href="https://machine-repair-survey.onrender.com/" target="_blank" rel="noopener">CLICK HERE TO ACCESS REPAIR LOG</a><br><br>At the top of the log enter your store & name, scroll to the bottom to see your current machines out. Check if these are still out - press fixed if they are fixed.<br><br>Add any machines that are currently marked that you don't see on the repair log (AFTER YOU TEST THEM) and please include details for Gene!`,
+  },
+  {
+    id: "quick-sweep",
+    section: "Closing Tasks",
+    title: "Quick sweep with wide large broom",
+    detail: "Do a fast pass through aisles, folding areas, and high-traffic spots so lint and debris never build up.",
+  },
+  {
     id: "bulkheads",
+    section: "Closing Tasks",
     title: "Wipe down bulkheads",
-    detail: "Wipe visible dust, lint, soap, and fingerprints from the bulkheads and surrounding ledges.",
+    itemsNeeded: "Diluted green liquid + microfiber mop to wipe hard to reach areas",
+    detail: "Wipe visible dust, lint, soap, and fingerprints from the bulkheads (the big boxes that house the washers) and surrounding ledges.",
   },
   {
     id: "machines",
-    title: "Wipe machines down inside and out",
+    section: "Closing Tasks",
+    title: "Wipe machines inside and out",
+    itemsNeeded: "Diluted Green + 2 machines per RAG",
     detail: "Wipe fronts, tops, doors, glass, handles, and inside edges. Do not forget the rubber seal around the glass to prevent mold growth.",
   },
   {
     id: "towels",
+    section: "Closing Tasks",
     title: "Wash towels for next attendant if needed",
+    itemsNeeded: "Money in cup / Ask PIC for machine start",
     detail: "If towel supply is low, wash and dry towels so the next attendant starts with clean supplies.",
   },
   {
     id: "front-area",
+    section: "Closing Tasks",
     title: "Tidy up front area and parking lot",
     detail: "Straighten carts and tables, remove trash outside, and make the entrance look clean from the customer view.",
   },
   {
     id: "bathroom",
+    section: "Closing Tasks",
     title: "Clean bathroom",
+    itemsNeeded: "Diluted green + rags",
     detail: "Clean surfaces, replace toilet paper, refill soap, empty the trash can, and leave the bathroom customer-ready.",
   },
   {
+    id: "trash",
+    section: "Closing Tasks",
+    title: "Trash out",
+    detail: "Take all trash out, replace liners, and take bags to the dumpster before you leave.",
+  },
+  {
     id: "sweep-floor",
+    section: "Closing Tasks",
     title: "Clean Floor",
+    itemsNeeded: "Scraper, broom, dust pan",
     detail: "Sweep under tables, around machines, corners, aisles, and anywhere lint or debris collects. Scrape gum off the floor.",
   },
   {
     id: "mop",
+    section: "Closing Tasks",
     title: "Mop floor",
-    detail: "Floor mopped in direction of tile if applicable, water dumped outside at completion.",
+    itemsNeeded: "Yellow liquid, just 1/2 cup in mop bucket",
+    detail: "Floor mopped in direction of tile if applicable (Barstow & Shaw), water dumped outside at completion.",
   },
   {
     id: "office",
+    section: "Closing Tasks",
     title: "Leave Properly",
-    detail: "Office organized, music on, TVs left on store information slides, and door auto-lock confirmed.",
+    detail: "Organize the office, leave the music on, and leave TVs on the store information slides. Open washers in a uniform way so they look good and can air out. Organize carts, then confirm the door auto-lock is set.",
   },
 ];
 
@@ -125,18 +152,29 @@ function itemIsComplete(item) {
 }
 
 function renderChecklist() {
+  let currentSection = "";
   checklist.innerHTML = state.items
     .map((item) => {
       const complete = itemIsComplete(item);
       const photoLabel = item.photo ? "Photo added" : "Photo required";
+      const sectionHeader =
+        item.section !== currentSection
+          ? `<h2 class="task-section-title">${item.section}</h2>`
+          : "";
+      currentSection = item.section;
       return `
-        <article class="check-item ${complete ? "done" : ""}" data-id="${item.id}">
+        ${sectionHeader}
+        <article class="check-item ${item.section === "Critical Tasks" ? "critical" : ""} ${complete ? "done" : ""}" data-id="${item.id}">
           <div class="check-main">
             <button class="task-toggle" type="button" aria-label="Mark ${item.title} complete">
               <span aria-hidden="true">✓</span>
             </button>
             <div>
-              <p class="task-title">${item.title}</p>
+              ${item.itemsNeeded ? `<p class="task-items"><span>Items:</span> ${item.itemsNeeded}</p>` : ""}
+              <div class="task-heading">
+                <p class="task-title">${item.title}</p>
+                ${item.warning ? `<span class="safety-warning">${item.warning}</span>` : ""}
+              </div>
               <p class="task-detail">${item.detail}</p>
               <div class="task-meta">
                 <span class="pill location">${locationSelect.value}</span>
@@ -158,7 +196,7 @@ function renderChecklist() {
               ? `
                 <div class="photo-panel">
                   <input class="photo-input" id="photo-${item.id}" type="file" accept="image/*" capture="environment" />
-                  <label class="photo-button" for="photo-${item.id}">Take or upload photo</label>
+                  <label class="photo-button" for="photo-${item.id}">Take required photo</label>
                   <img class="photo-preview ${item.photo ? "visible" : ""}" src="${item.photo}" alt="${item.title} proof" />
                 </div>
               `

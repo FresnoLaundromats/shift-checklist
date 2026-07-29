@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Shift Checklist</title>
-    <link rel="stylesheet" href="style.css?v=repair-log-1" />
+    <link rel="stylesheet" href="style.css?v=inspect-store-2" />
   </head>
   <body>
     <div class="bubble-layer" aria-hidden="true">
@@ -67,11 +67,33 @@
 
       <section class="progress-block" aria-label="Completion progress">
         <div class="progress-copy">
-          <strong id="progressText">0 of 14 complete</strong>
+          <strong id="progressText">0 of 15 complete</strong>
           <span id="photoText">2 photo items left</span>
         </div>
         <div class="meter" aria-hidden="true">
           <span id="progressBar"></span>
+        </div>
+      </section>
+
+      <section class="supply-guide" aria-label="Cleaning supplies guide">
+        <h2>Cleaning Supplies</h2>
+        <div class="supply-grid">
+          <article class="supply-card">
+            <strong>Yellow</strong>
+            <p>Mopping ONLY</p>
+          </article>
+          <article class="supply-card">
+            <strong>Blue</strong>
+            <p>Glass ONLY</p>
+          </article>
+          <article class="supply-card">
+            <strong>Green</strong>
+            <p>Everything else. VERY diluted with 90% water.</p>
+          </article>
+          <article class="supply-card">
+            <strong>Stainless Steel Polish</strong>
+            <p>Washer fronts only - once a week.</p>
+          </article>
         </div>
       </section>
 
@@ -119,7 +141,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="game.js?v=repair-log-1"></script>
+    <script src="game.js?v=inspect-store-2"></script>
     <script>
       (() => {
         const button = document.getElementById("submitButton");
