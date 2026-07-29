@@ -397,30 +397,32 @@ textarea:focus {
 
 .supply-card {
   display: grid;
-  align-content: start;
-  gap: 2px;
-  min-height: 42px;
-  padding: 6px;
+  align-content: center;
+  justify-items: center;
+  gap: 3px;
+  min-height: 52px;
+  padding: 7px 6px;
   border: 1px solid #e2ebe7;
   border-radius: 8px;
   background: #fbfdfc;
   min-width: 0;
+  text-align: center;
 }
 
 .supply-card strong {
   display: block;
   color: var(--ink);
-  font-size: 0.64rem;
+  font-size: 0.7rem;
   font-weight: 950;
-  line-height: 1.05;
+  line-height: 1.08;
 }
 
 .supply-card p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.58rem;
+  font-size: 0.64rem;
   font-weight: 780;
-  line-height: 1.12;
+  line-height: 1.15;
 }
 
 .checklist {
