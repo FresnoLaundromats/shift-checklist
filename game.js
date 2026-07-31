@@ -1,30 +1,28 @@
 const checklistItems = [
   {
-    id: "soap-dishes",
-    section: "Critical Tasks",
-    title: "Soap dishes",
-    detail: "NO residue can be left behind. We have a variety of water holding things and brushes for this. If soap is stuck in the dish and pooling YOU need to clean it with elbow grease. It is not broken. Upload a clear photo.",
-    photoRequired: true,
-  },
-  {
-    id: "lint-traps",
-    section: "Critical Tasks",
-    title: "Vacuum Lint Screens + Lint Chutes",
-    warning: "WARNING! SAFETY CONCERN",
-    detail: "Pull lint from every trap, then vacuum the lint area out completely. Upload a clear photo.",
-    photoRequired: true,
-  },
-  {
     id: "greet",
     section: "Closing Tasks",
     title: "Greet Customers",
-    detail: "Hi, my name is ___. Let me know if there is anything I can do to help :)",
+    detail: "Greet customers and help them with any issues or questions. Hi, my name is ___. Let me know if there is anything I can do to help :)",
   },
   {
-    id: "inspect-store",
+    id: "quick-sweep",
     section: "Closing Tasks",
-    title: "Inspect the Store",
-    detail: "Take a walk around the store and inspect it. Look at everything, see what looks bad - not everything will be on this list and the store appearance is on you! Please take this moment to be honest about what needs to be done. Some examples: Windows, things hung up on walls, build up of debris, the ceiling.",
+    title: "Quick Tidy Up",
+    detail: "Clean debris from washer tops and counters, quickly wipe spills, spot sweep debris and dryer sheets, and check the bathroom.",
+  },
+  {
+    id: "towels",
+    section: "Closing Tasks",
+    title: "Start towels if needed",
+    itemsNeeded: "Money in cup / Ask PIC for machine start",
+    detail: "If towels need washed, start them now so clean folded towels are ready before closing.",
+  },
+  {
+    id: "front-area",
+    section: "Closing Tasks",
+    title: "Clean Front of Store & Windows",
+    detail: "Clean the sidewalk area in front of the store. Wash front windows with Blue glass cleaner only. Straighten carts and tables, remove outside trash, and make the entrance look clean from the customer view.",
   },
   {
     id: "machine-repair-log",
@@ -33,10 +31,35 @@ const checklistItems = [
     detail: `<a href="https://machine-repair-survey.onrender.com/" target="_blank" rel="noopener">CLICK HERE TO ACCESS REPAIR LOG</a><br><br>At the top of the log enter your store & name, scroll to the bottom to see your current machines out. Check if these are still out - press fixed if they are fixed.<br><br>Add any machines that are currently marked that you don't see on the repair log (AFTER YOU TEST THEM) and please include details for Gene!`,
   },
   {
-    id: "quick-sweep",
+    id: "lint-traps",
     section: "Closing Tasks",
-    title: "Quick sweep with wide large broom",
-    detail: "Do a fast pass through aisles, folding areas, and high-traffic spots so lint and debris never build up.",
+    title: "Vacuum Lint Screens + Lint Chutes",
+    warning: "WARNING! SAFETY CONCERN",
+    critical: true,
+    detail: "Completely remove each lint screen and remove lint from the entire screen, then vacuum the screen and lint chute. Upload a clear photo.",
+    photoRequired: true,
+  },
+  {
+    id: "soap-dishes",
+    section: "Closing Tasks",
+    title: "Soap dishes",
+    critical: true,
+    detail: "NO residue can be left behind. We have a variety of water holding things and brushes for this. If soap is stuck in the dish and pooling YOU need to clean it with elbow grease. It is not broken. Upload a clear photo.",
+    photoRequired: true,
+  },
+  {
+    id: "machines",
+    section: "Closing Tasks",
+    title: "Clean washers and dryer fronts",
+    itemsNeeded: "Diluted Green + 2 machines per RAG",
+    detail: "Clean washer fronts, tops, doors, glass, handles, and inside edges. Do not forget the rubber seal around the glass to prevent mold growth. Clean dryer glass and any dust or smudges on dryer fronts.",
+  },
+  {
+    id: "bathroom",
+    section: "Closing Tasks",
+    title: "Deep clean bathroom",
+    itemsNeeded: "Diluted green + rags",
+    detail: "Clean surfaces, replace toilet paper, refill soap, empty the trash can, and leave the bathroom customer-ready.",
   },
   {
     id: "bulkheads",
@@ -46,31 +69,11 @@ const checklistItems = [
     detail: "Wipe visible dust, lint, soap, and fingerprints from the bulkheads (the big boxes that house the washers) and surrounding ledges.",
   },
   {
-    id: "machines",
+    id: "sweep-floor",
     section: "Closing Tasks",
-    title: "Wipe machines inside and out",
-    itemsNeeded: "Diluted Green + 2 machines per RAG",
-    detail: "Wipe fronts, tops, doors, glass, handles, and inside edges. Do not forget the rubber seal around the glass to prevent mold growth.",
-  },
-  {
-    id: "towels",
-    section: "Closing Tasks",
-    title: "Wash towels for next attendant if needed",
-    itemsNeeded: "Money in cup / Ask PIC for machine start",
-    detail: "If towel supply is low, wash and dry towels so the next attendant starts with clean supplies.",
-  },
-  {
-    id: "front-area",
-    section: "Closing Tasks",
-    title: "Tidy up front area and parking lot",
-    detail: "Straighten carts and tables, remove trash outside, and make the entrance look clean from the customer view.",
-  },
-  {
-    id: "bathroom",
-    section: "Closing Tasks",
-    title: "Clean bathroom",
-    itemsNeeded: "Diluted green + rags",
-    detail: "Clean surfaces, replace toilet paper, refill soap, empty the trash can, and leave the bathroom customer-ready.",
+    title: "Sweep floor",
+    itemsNeeded: "Scraper, broom, dust pan",
+    detail: "Sweep under tables, around machines, corners, aisles, and anywhere lint or debris collects. Scrape gum off the floor.",
   },
   {
     id: "trash",
@@ -79,24 +82,23 @@ const checklistItems = [
     detail: "Take all trash out, replace liners, and take bags to the dumpster before you leave.",
   },
   {
-    id: "sweep-floor",
-    section: "Closing Tasks",
-    title: "Clean Floor",
-    itemsNeeded: "Scraper, broom, dust pan",
-    detail: "Sweep under tables, around machines, corners, aisles, and anywhere lint or debris collects. Scrape gum off the floor.",
-  },
-  {
     id: "mop",
     section: "Closing Tasks",
     title: "Mop floor",
-    itemsNeeded: "Yellow liquid, just 1/2 cup in mop bucket",
+    itemsNeeded: "Yellow liquid, just 2 caps in mop bucket",
     detail: "Floor mopped in direction of tile if applicable (Barstow & Shaw), water dumped outside at completion.",
+  },
+  {
+    id: "inspect-store",
+    section: "Closing Tasks",
+    title: "Inspect the Store",
+    detail: "Take a walk around the store and inspect it. Look at everything, see what looks bad - not everything will be on this list and the store appearance is on you! Please take this moment to be honest about what needs to be done. Some examples: Windows, things hung up on walls, build up of debris, the ceiling.",
   },
   {
     id: "office",
     section: "Closing Tasks",
     title: "Leave Properly",
-    detail: "Organize the office, leave the music on, and leave TVs on the store information slides. Open washers in a uniform way so they look good and can air out. Organize carts, then confirm the door auto-lock is set.",
+    detail: "Leave the office and showroom as you would like to find it. Make sure there is a full stack of clean folded towels so the next attendant has supplies ready. Leave music on, TVs on store information slides, washers open uniformly, and carts organized. Confirm the door auto-lock is set.",
   },
 ];
 
@@ -164,7 +166,7 @@ function renderChecklist() {
       currentSection = item.section;
       return `
         ${sectionHeader}
-        <article class="check-item ${item.section === "Critical Tasks" ? "critical" : ""} ${complete ? "done" : ""}" data-id="${item.id}">
+        <article class="check-item ${item.critical ? "critical" : ""} ${complete ? "done" : ""}" data-id="${item.id}">
           <div class="check-main">
             <button class="task-toggle" type="button" aria-label="Mark ${item.title} complete">
               <span aria-hidden="true">✓</span>
