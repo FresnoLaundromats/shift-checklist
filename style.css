@@ -466,6 +466,18 @@ textarea:focus {
   color: #7e241f;
 }
 
+.check-item.special {
+  border-color: rgba(179, 132, 29, 0.48);
+  background: #fffdf4;
+  box-shadow:
+    inset 4px 0 0 #d1a43d,
+    0 10px 28px rgba(22, 34, 30, 0.075);
+}
+
+.check-item.special .task-title {
+  color: #3f3516;
+}
+
 .task-heading {
   display: flex;
   flex-wrap: wrap;
@@ -488,6 +500,22 @@ textarea:focus {
   line-height: 1;
   text-transform: uppercase;
   box-shadow: 0 6px 14px rgba(183, 53, 45, 0.18);
+}
+
+.special-task-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 8px;
+  border: 1px solid rgba(179, 132, 29, 0.45);
+  border-radius: 6px;
+  background: #f6e5a8;
+  color: #59440d;
+  font-size: 0.64rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .task-items {
@@ -612,6 +640,12 @@ textarea:focus {
   color: var(--danger);
 }
 
+.check-item.special .expand-button {
+  border-color: rgba(179, 132, 29, 0.38);
+  background: #fff9df;
+  color: #715817;
+}
+
 .photo-panel {
   display: none;
   gap: 12px;
@@ -647,6 +681,12 @@ textarea:focus {
   border-color: var(--danger);
   background: #fff4ef;
   color: #8c2a24;
+}
+
+.check-item.special .photo-button {
+  border-color: #a67c1a;
+  background: #fff8d8;
+  color: #59440d;
 }
 
 .photo-preview {

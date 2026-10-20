@@ -1,4 +1,62 @@
-const checklistItems = [
+const specialTasksByDay = [
+  {
+    day: "Sunday",
+    id: "parking-lot",
+    title: "Clean Entire Parking Lot",
+    detail: "Walk the entire parking lot and remove trash, dryer sheets, cigarette butts, and debris. Check curbs, planters, corners, and the area along the building. Work only where it is safe and well-lit. Upload a clear photo when finished.",
+  },
+  {
+    day: "Monday",
+    id: "windows",
+    title: "Clean Windows",
+    detail: "Clean all customer-facing windows and glass doors inside and outside using properly diluted Blue cleaner. Remove fingerprints, spots, tape residue, and buildup. Upload a clear photo when finished.",
+  },
+  {
+    day: "Tuesday",
+    id: "parking-lot",
+    title: "Clean Entire Parking Lot",
+    detail: "Walk the entire parking lot and remove trash, dryer sheets, cigarette butts, and debris. Check curbs, planters, corners, and the area along the building. Work only where it is safe and well-lit. Upload a clear photo when finished.",
+  },
+  {
+    day: "Wednesday",
+    id: "paint-touch-up",
+    title: "Touch Up Paint",
+    detail: "Inspect walls, doors, trim, and other painted surfaces for visible chips and scuffs. Use only the approved matching paint and make neat touch-ups. Do not paint over signs, labels, fixtures, or damage that needs repair. Upload a clear photo when finished.",
+  },
+  {
+    day: "Thursday",
+    id: "employee-area",
+    title: "Clean Employee Area",
+    detail: "Clean and organize the employee area. Wipe surfaces, remove trash, put supplies and tools away, and sweep or mop as needed. Upload a clear photo when finished.",
+  },
+  {
+    day: "Friday",
+    id: "dumpster-area",
+    title: "Clean Dumpster Area",
+    detail: "Pick up loose trash and debris around the dumpster area, sweep the ground, and make sure bags are inside the dumpster and the lids can close. Do not handle sharp or unsafe items by hand. Upload a clear photo when finished.",
+  },
+  {
+    day: "Saturday",
+    id: "windows",
+    title: "Clean Windows",
+    detail: "Clean all customer-facing windows and glass doors inside and outside using properly diluted Blue cleaner. Remove fingerprints, spots, tape residue, and buildup. Upload a clear photo when finished.",
+  },
+];
+
+function getSpecialTask(date = new Date()) {
+  const task = specialTasksByDay[date.getDay()];
+  return {
+    id: `special-${task.id}`,
+    section: "Closing Tasks",
+    title: task.title,
+    specialLabel: `${task.day} Special Task`,
+    special: true,
+    detail: task.detail,
+    photoRequired: true,
+  };
+}
+
+const baseChecklistItems = [
   {
     id: "greet",
     section: "Closing Tasks",
@@ -8,8 +66,8 @@ const checklistItems = [
   {
     id: "quick-sweep",
     section: "Closing Tasks",
-    title: "Quick Tidy Up",
-    detail: "Clean debris from washer tops and counters, quickly wipe spills, spot sweep debris and dryer sheets, and check the bathroom.",
+    title: "Quick Tidy Up + CHECK",
+    detail: "Clean debris from washer tops and counters, quickly wipe spills, spot sweep debris and dryer sheets, and check the bathroom. CHECK that the TVs and music are on.",
   },
   {
     id: "towels",
@@ -21,8 +79,8 @@ const checklistItems = [
   {
     id: "front-area",
     section: "Closing Tasks",
-    title: "Clean Front of Store & Windows",
-    detail: "Clean the sidewalk area in front of the store. Wash front windows with Blue glass cleaner only. Straighten carts and tables, remove outside trash, and make the entrance look clean from the customer view.",
+    title: "Clean Front Entrance",
+    detail: "Quickly tidy the sidewalk immediately in front of the store, straighten carts and tables, remove visible trash near the entrance, and leave the entry customer-ready.",
   },
   {
     id: "machine-repair-log",
@@ -92,15 +150,31 @@ const checklistItems = [
     id: "inspect-store",
     section: "Closing Tasks",
     title: "Inspect the Store",
-    detail: "Take a walk around the store and inspect it. Look at everything, see what looks bad - not everything will be on this list and the store appearance is on you! Please take this moment to be honest about what needs to be done. Some examples: Windows, things hung up on walls, build up of debris, the ceiling.",
+    detail: "Take a walk around the store and inspect it. Look at everything and see what looks bad - not everything will be on this list, and the store appearance is on you. Please take this moment to be honest about what needs to be done. Some examples: things hung on walls, buildup of debris, and the ceiling.",
   },
   {
     id: "office",
     section: "Closing Tasks",
     title: "Leave Properly",
-    detail: "Leave the office and showroom as you would like to find it. Make sure there is a full stack of clean folded towels so the next attendant has supplies ready. Leave music on, TVs on store information slides, washers open uniformly, and carts organized. Confirm the door auto-lock is set.",
+    detail: "Leave the showroom as you would like to find it. Make sure there is a full stack of clean folded towels so the next attendant has supplies ready. Leave music on, TVs on store information slides, washers open uniformly, and carts organized. Confirm the door auto-lock is set.",
   },
 ];
+
+function buildChecklistItems(date = new Date()) {
+  const items = baseChecklistItems.map((item) => ({ ...item }));
+  const towelsIndex = items.findIndex((item) => item.id === "towels");
+  items.splice(towelsIndex + 1, 0, getSpecialTask(date));
+  return items;
+}
+
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+let checklistItems = buildChecklistItems();
 
 const state = {
   items: checklistItems.map((item) => ({ ...item, done: false, photo: "" })),
@@ -166,7 +240,7 @@ function renderChecklist() {
       currentSection = item.section;
       return `
         ${sectionHeader}
-        <article class="check-item ${item.critical ? "critical" : ""} ${complete ? "done" : ""}" data-id="${item.id}">
+        <article class="check-item ${item.critical ? "critical" : ""} ${item.special ? "special" : ""} ${complete ? "done" : ""}" data-id="${item.id}">
           <div class="check-main">
             <button class="task-toggle" type="button" aria-label="Mark ${item.title} complete">
               <span aria-hidden="true">✓</span>
@@ -175,6 +249,7 @@ function renderChecklist() {
               ${item.itemsNeeded ? `<p class="task-items"><span>Items:</span> ${item.itemsNeeded}</p>` : ""}
               <div class="task-heading">
                 <p class="task-title">${item.title}</p>
+                ${item.specialLabel ? `<span class="special-task-label">${item.specialLabel}</span>` : ""}
                 ${item.warning ? `<span class="safety-warning">${item.warning}</span>` : ""}
               </div>
               <p class="task-detail">${item.detail}</p>
@@ -261,6 +336,7 @@ async function readPhoto(file, itemId) {
 }
 
 function resetForm() {
+  checklistItems = buildChecklistItems();
   state.items = checklistItems.map((item) => ({ ...item, done: false, photo: "" }));
   notesInput.value = "";
   renderChecklist();
@@ -325,7 +401,7 @@ async function submitChecklist() {
 
   const submission = {
     id: completedAt.toISOString(),
-    dateKey: completedAt.toISOString().slice(0, 10),
+    dateKey: getLocalDateKey(completedAt),
     completedAt: completedAt.toLocaleString([], { dateStyle: "medium", timeStyle: "short" }),
     location: locationSelect.value,
     employee: employeeInput.value.trim(),
