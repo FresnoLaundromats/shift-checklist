@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Shift Checklist</title>
     <link rel="icon" href="assets/favicon.svg?v=2" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=special-tasks-1" />
+    <link rel="stylesheet" href="style.css?v=store-validation-1" />
   </head>
   <body>
     <div class="bubble-layer" aria-hidden="true">
@@ -40,8 +40,13 @@
 
       <section class="shift-panel" aria-label="Checklist details">
         <label>
+          <span>Employee</span>
+          <input id="employeeInput" type="text" autocomplete="name" placeholder="Name" required />
+        </label>
+        <label>
           <span>Location</span>
-          <select id="locationSelect">
+          <select id="locationSelect" autocomplete="off" required>
+            <option value="" selected disabled>Select your store</option>
             <option>Barstow</option>
             <option>Shaw</option>
             <option>KC1</option>
@@ -64,10 +69,6 @@
               <option>Chowchilla</option>
             </optgroup>
           </select>
-        </label>
-        <label>
-          <span>Employee</span>
-          <input id="employeeInput" type="text" autocomplete="name" placeholder="Name" />
         </label>
       </section>
 
@@ -148,19 +149,20 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="game.js?v=special-tasks-1"></script>
+    <script src="game.js?v=store-validation-1"></script>
     <script>
       (() => {
         const button = document.getElementById("submitButton");
         const banner = document.getElementById("successMessage");
         const employee = document.getElementById("employeeInput");
+        const location = document.getElementById("locationSelect");
 
-        if (!button || !banner || !employee) return;
+        if (!button || !banner || !employee || !location) return;
 
         button.addEventListener(
           "click",
           () => {
-            if (employee.value.trim().length < 2) return;
+            if (employee.value.trim().length < 2 || !location.value) return;
 
             setTimeout(() => {
               banner.hidden = false;

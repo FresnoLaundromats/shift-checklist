@@ -254,7 +254,7 @@ function renderChecklist() {
               </div>
               <p class="task-detail">${item.detail}</p>
               <div class="task-meta">
-                <span class="pill location">${locationSelect.value}</span>
+                <span class="pill location">${locationSelect.value || "Select store"}</span>
                 ${
                   item.photoRequired
                     ? `<span class="pill ${item.photo ? "complete" : "required"}">${photoLabel}</span>`
@@ -375,6 +375,15 @@ async function submitChecklist() {
   updateProgress();
   if (employeeInput.value.trim().length < 2) {
     showToast("Enter the employee name before submitting.");
+    employeeInput.focus();
+    employeeInput.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
+  if (!locationSelect.value) {
+    showToast("Select your store before submitting. Your checklist and photos are still saved.");
+    locationSelect.focus();
+    locationSelect.scrollIntoView({ behavior: "smooth", block: "center" });
     return;
   }
 
