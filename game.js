@@ -1,55 +1,57 @@
-const specialTasksByDay = [
+const sundaySpecialTask = {
+  id: "windows",
+  title: "Clean Windows",
+  detail: "Clean all customer-facing windows and glass doors inside and outside using properly diluted Blue cleaner. Remove fingerprints, spots, tape residue, and buildup. Upload a clear photo when finished.",
+};
+
+const rotatingSpecialTasks = [
   {
-    day: "Sunday",
-    id: "parking-lot",
-    title: "Clean Entire Parking Lot",
-    detail: "Walk the entire parking lot and remove trash, dryer sheets, cigarette butts, and debris. Check curbs, planters, corners, and the area along the building. Work only where it is safe and well-lit. Upload a clear photo when finished.",
+    id: "parking-sweep",
+    title: "Sweep Parking Lot of All Trash",
+    detail: "Sweep the entire parking lot and remove all trash, dryer sheets, cigarette butts, and debris. Check curbs, corners, and the area along the building. Work only where it is safe and well-lit. Upload a clear photo when finished.",
   },
   {
-    day: "Monday",
-    id: "windows",
-    title: "Clean Windows",
-    detail: "Clean all customer-facing windows and glass doors inside and outside using properly diluted Blue cleaner. Remove fingerprints, spots, tape residue, and buildup. Upload a clear photo when finished.",
+    id: "parking-grounds",
+    title: "Clean Bushes, Grass & Parking Lot Perimeter",
+    detail: "Remove litter and loose debris from bushes, grass, planters, fence lines, curbs, and every area surrounding the parking lot. Upload a clear photo when finished.",
   },
   {
-    day: "Tuesday",
-    id: "parking-lot",
-    title: "Clean Entire Parking Lot",
-    detail: "Walk the entire parking lot and remove trash, dryer sheets, cigarette butts, and debris. Check curbs, planters, corners, and the area along the building. Work only where it is safe and well-lit. Upload a clear photo when finished.",
-  },
-  {
-    day: "Wednesday",
     id: "paint-touch-up",
     title: "Touch Up Paint",
     detail: "Inspect walls, doors, trim, and other painted surfaces for visible chips and scuffs. Use only the approved matching paint and make neat touch-ups. Do not paint over signs, labels, fixtures, or damage that needs repair. Upload a clear photo when finished.",
   },
   {
-    day: "Thursday",
     id: "employee-area",
     title: "Clean Employee Area",
     detail: "Clean and organize the employee area. Wipe surfaces, remove trash, put supplies and tools away, and sweep or mop as needed. Upload a clear photo when finished.",
   },
   {
-    day: "Friday",
     id: "dumpster-area",
     title: "Clean Dumpster Area",
     detail: "Pick up loose trash and debris around the dumpster area, sweep the ground, and make sure bags are inside the dumpster and the lids can close. Do not handle sharp or unsafe items by hand. Upload a clear photo when finished.",
   },
-  {
-    day: "Saturday",
-    id: "windows",
-    title: "Clean Windows",
-    detail: "Clean all customer-facing windows and glass doors inside and outside using properly diluted Blue cleaner. Remove fingerprints, spots, tape residue, and buildup. Upload a clear photo when finished.",
-  },
 ];
 
+const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const rotationAnchorMondayUtc = Date.UTC(2026, 9, 19);
+
 function getSpecialTask(date = new Date()) {
-  const task = specialTasksByDay[date.getDay()];
+  const dayOfWeek = date.getDay();
+  let task = sundaySpecialTask;
+
+  if (dayOfWeek !== 0) {
+    const dateUtc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+    const weeksSinceAnchor = Math.floor((dateUtc - rotationAnchorMondayUtc) / (7 * 24 * 60 * 60 * 1000));
+    const weeklyOffset = ((weeksSinceAnchor % rotatingSpecialTasks.length) + rotatingSpecialTasks.length) % rotatingSpecialTasks.length;
+    const weekdayOffset = dayOfWeek - 1;
+    task = rotatingSpecialTasks[(weeklyOffset + weekdayOffset) % rotatingSpecialTasks.length];
+  }
+
   return {
     id: `special-${task.id}`,
     section: "Closing Tasks",
     title: task.title,
-    specialLabel: `${task.day} Special Task`,
+    specialLabel: `${dayNames[dayOfWeek]} Special Task`,
     special: true,
     detail: task.detail,
     photoRequired: true,
