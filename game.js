@@ -4,6 +4,12 @@ const sundaySpecialTask = {
   detail: "Clean all customer-facing windows and glass doors inside and outside using properly diluted Blue cleaner. Remove fingerprints, spots, tape residue, and buildup. Upload a clear photo when finished.",
 };
 
+const lintChuteSpecialTask = {
+  id: "lint-chutes",
+  title: "Vacuum Lint Chutes + Trays",
+  detail: "Deep clean every dryer lint area. Remove and vacuum each lint tray, then thoroughly vacuum inside each lint chute to remove built-up lint. Upload a clear photo when finished.",
+};
+
 const rotatingSpecialTasks = [
   {
     id: "parking-sweep",
@@ -39,11 +45,13 @@ function getSpecialTask(date = new Date()) {
   const dayOfWeek = date.getDay();
   let task = sundaySpecialTask;
 
-  if (dayOfWeek !== 0) {
+  if (dayOfWeek === 1 || dayOfWeek === 5) {
+    task = lintChuteSpecialTask;
+  } else if (dayOfWeek !== 0) {
     const dateUtc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
     const weeksSinceAnchor = Math.floor((dateUtc - rotationAnchorMondayUtc) / (7 * 24 * 60 * 60 * 1000));
     const weeklyOffset = ((weeksSinceAnchor % rotatingSpecialTasks.length) + rotatingSpecialTasks.length) % rotatingSpecialTasks.length;
-    const weekdayOffset = dayOfWeek - 1;
+    const weekdayOffset = { 2: 0, 3: 1, 4: 2, 6: 3 }[dayOfWeek];
     task = rotatingSpecialTasks[(weeklyOffset + weekdayOffset) % rotatingSpecialTasks.length];
   }
 
@@ -93,10 +101,10 @@ const baseChecklistItems = [
   {
     id: "lint-traps",
     section: "Closing Tasks",
-    title: "Vacuum Lint Screens + Lint Chutes",
+    title: "Vacuum Lint Trays",
     warning: "WARNING! SAFETY CONCERN",
     critical: true,
-    detail: "Completely remove each lint screen and remove lint from the entire screen, then vacuum the screen and lint chute. Upload a clear photo.",
+    detail: "Completely remove each lint tray, remove lint from the entire tray, and vacuum the tray clean. This daily task is for the trays only; lint chutes are deep cleaned during the Monday and Friday Special Task. Upload a clear photo.",
     photoRequired: true,
   },
   {
@@ -671,8 +679,7 @@ locationSelect.addEventListener("change", renderChecklist);
 employeeInput.addEventListener("input", updateProgress);
 submitButton.addEventListener("click", submitChecklist);
 reviewButton.addEventListener("click", () => {
-  renderSubmissions();
-  summaryDialog.showModal();
+  window.location.href = "manager-dashboard.html";
 });
 closeDialog.addEventListener("click", () => summaryDialog.close());
 closeThankYou.addEventListener("click", closeThankYouMessage);

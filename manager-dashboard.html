@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#173c5e" />
+    <title>Shift Checklist Manager</title>
+    <link rel="icon" href="assets/favicon.svg?v=3" type="image/svg+xml" />
+    <link rel="stylesheet" href="manager-dashboard.css?v=1" />
+  </head>
+  <body>
+    <div class="auth-screen" id="authScreen" aria-labelledby="authTitle">
+      <form class="auth-panel" id="authForm">
+        <div class="auth-brand" aria-hidden="true">
+          <img src="assets/dirty-bird-basket.png" alt="" />
+          <img src="assets/superclean-clean.png" alt="" />
+        </div>
+        <p class="kicker">Manager access</p>
+        <h1 id="authTitle">Shift Checklist Dashboard</h1>
+        <p class="auth-copy">Enter the manager access code to view employee performance and phone numbers.</p>
+        <label class="field-label" for="accessCode">Access code</label>
+        <input id="accessCode" name="accessCode" type="password" autocomplete="current-password" required />
+        <label class="remember-row">
+          <input id="rememberAccess" type="checkbox" />
+          <span>Remember this device</span>
+        </label>
+        <p class="form-error" id="authError" role="alert"></p>
+        <button class="button primary" type="submit">Open dashboard</button>
+      </form>
+    </div>
+
+    <div class="dashboard-shell" id="dashboardShell" hidden>
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-marks" aria-hidden="true">
+            <img src="assets/dirty-bird-basket.png" alt="" />
+            <img src="assets/superclean-clean.png" alt="" />
+          </div>
+          <div>
+            <strong>Shift Checklist</strong>
+            <span>Manager</span>
+          </div>
+        </div>
+
+        <nav class="main-nav" aria-label="Dashboard views">
+          <button class="nav-button active" type="button" data-view="overview">Overview</button>
+          <button class="nav-button" type="button" data-view="nightly">Nightly Summary</button>
+          <button class="nav-button" type="button" data-view="employees">Employees</button>
+          <button class="nav-button" type="button" data-view="leaderboard">Leaderboard</button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <span id="dataUpdated">Not loaded</span>
+          <button class="text-button" id="lockButton" type="button">Lock dashboard</button>
+        </div>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="dashboard-header">
+          <div>
+            <p class="kicker" id="viewKicker">Operations</p>
+            <h1 id="viewTitle">Overview</h1>
+          </div>
+          <div class="header-actions">
+            <div class="range-control" id="rangeControl" aria-label="Reporting period">
+              <button type="button" data-days="7">7 days</button>
+              <button class="active" type="button" data-days="30">30 days</button>
+              <button type="button" data-days="90">90 days</button>
+              <button type="button" data-days="365">1 year</button>
+            </div>
+            <button class="button secondary compact" id="refreshButton" type="button">Refresh</button>
+          </div>
+        </header>
+
+        <div class="demo-banner" id="demoBanner" hidden>
+          Preview mode uses sample employee data. No real phone numbers or checklist records are shown.
+        </div>
+        <div class="status-banner" id="statusBanner" hidden role="status"></div>
+
+        <section class="dashboard-view active" data-panel="overview" aria-labelledby="viewTitle">
+          <div class="metric-grid" id="overviewMetrics"></div>
+
+          <div class="overview-grid">
+            <section class="panel nightly-snapshot">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-label">Tonight</p>
+                  <h2>Nightly status</h2>
+                </div>
+                <button class="text-button view-link" type="button" data-go-view="nightly">View full summary</button>
+              </div>
+              <div id="nightlySnapshot"></div>
+            </section>
+
+            <section class="panel leaderboard-snapshot">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-label">Points</p>
+                  <h2>Leaderboard</h2>
+                </div>
+                <button class="text-button view-link" type="button" data-go-view="leaderboard">View all</button>
+              </div>
+              <div id="leaderboardSnapshot"></div>
+            </section>
+          </div>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-label">Store performance</p>
+                <h2>Stores needing attention</h2>
+              </div>
+              <span class="panel-note" id="storeRangeLabel"></span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Store</th>
+                    <th>Average</th>
+                    <th>Perfect shifts</th>
+                    <th>Follow-up</th>
+                    <th>Employees</th>
+                  </tr>
+                </thead>
+                <tbody id="storeTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="dashboard-view" data-panel="nightly" aria-labelledby="viewTitle">
+          <section class="panel filter-bar">
+            <label>
+              <span>Night to review</span>
+              <input id="nightlyDate" type="date" />
+            </label>
+            <div class="nightly-legend" aria-label="Status legend">
+              <span><i class="dot green"></i> Complete</span>
+              <span><i class="dot orange"></i> Follow-up</span>
+              <span><i class="dot red"></i> Action required</span>
+            </div>
+          </section>
+
+          <div class="metric-grid compact-metrics" id="nightlyMetrics"></div>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-label">Employee scorecard</p>
+                <h2 id="nightlyHeading">Nightly checklist results</h2>
+              </div>
+              <span class="panel-note" id="coverageNote"></span>
+            </div>
+            <div class="table-wrap">
+              <table class="nightly-table">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Store</th>
+                    <th>Employee</th>
+                    <th>Completion</th>
+                    <th>Points</th>
+                    <th>Photos</th>
+                    <th>Issue</th>
+                  </tr>
+                </thead>
+                <tbody id="nightlyTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="dashboard-view" data-panel="employees" aria-labelledby="viewTitle">
+          <section class="panel filter-bar employee-filters">
+            <label class="search-field">
+              <span>Find employee</span>
+              <input id="employeeSearch" type="search" placeholder="Search name, phone, or store" />
+            </label>
+            <label>
+              <span>Performance</span>
+              <select id="employeeStatusFilter">
+                <option value="all">All employees</option>
+                <option value="follow-up">Needs follow-up</option>
+                <option value="strong">90% or better</option>
+                <option value="inactive">No activity in range</option>
+              </select>
+            </label>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-label">Employee history</p>
+                <h2>Performance summary</h2>
+              </div>
+              <span class="panel-note" id="employeeCount"></span>
+            </div>
+            <div class="table-wrap">
+              <table class="employee-table">
+                <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Stores worked</th>
+                    <th>Shifts</th>
+                    <th>Average</th>
+                    <th>Photos</th>
+                    <th>Perfect</th>
+                    <th>Points</th>
+                  </tr>
+                </thead>
+                <tbody id="employeeTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="dashboard-view" data-panel="leaderboard" aria-labelledby="viewTitle">
+          <section class="scoring-banner">
+            <strong>How points work</strong>
+            <span>1 point for every completed task, plus 2 points for a perfect checklist with every required photo.</span>
+          </section>
+
+          <section class="panel leaderboard-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-label">Employee recognition</p>
+                <h2>Points leaderboard</h2>
+              </div>
+              <span class="panel-note" id="leaderboardRangeLabel"></span>
+            </div>
+            <div id="leaderboardFull"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="employee-dialog" id="employeeDialog">
+      <div class="dialog-head">
+        <div>
+          <p class="section-label">Employee history</p>
+          <h2 id="employeeDialogName">Employee</h2>
+          <a id="employeeDialogPhone" class="phone-link" href="#"></a>
+        </div>
+        <button class="close-button" id="closeEmployeeDialog" type="button" aria-label="Close employee history">&times;</button>
+      </div>
+      <div class="dialog-body" id="employeeDialogBody"></div>
+    </dialog>
+
+    <script src="manager-dashboard.js?v=1"></script>
+  </body>
+</html>
