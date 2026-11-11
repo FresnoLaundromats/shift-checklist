@@ -368,6 +368,22 @@ textarea:focus {
   transition: width 180ms ease;
 }
 
+.draft-status {
+  margin: 8px 0 0;
+  color: var(--brand-dark);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.draft-status[data-state="saving"] {
+  color: var(--muted);
+}
+
+.draft-status[data-state="error"] {
+  color: #9f2f29;
+}
+
 .supply-guide {
   display: grid;
   gap: 6px;

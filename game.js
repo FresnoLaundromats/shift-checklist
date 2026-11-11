@@ -189,6 +189,8 @@ let checklistItems = buildChecklistItems();
 const state = {
   items: checklistItems.map((item) => ({ ...item, done: false, photo: "" })),
   toastTimer: null,
+  draftSaveTimer: null,
+  draftReady: false,
 };
 
 const checklist = document.getElementById("checklist");
@@ -198,6 +200,7 @@ const notesInput = document.getElementById("notesInput");
 const progressText = document.getElementById("progressText");
 const photoText = document.getElementById("photoText");
 const progressBar = document.getElementById("progressBar");
+const draftStatus = document.getElementById("draftStatus");
 const successMessage = document.getElementById("successMessage");
 const submitButton = document.getElementById("submitButton");
 const reviewButton = document.getElementById("reviewButton");
@@ -212,6 +215,10 @@ const standardsSummary = document.getElementById("standardsSummary");
 const toast = document.getElementById("toast");
 const DASHBOARD_WINDOW_DAYS = 14;
 const PHOTO_RETENTION_DAYS = 14;
+const DRAFT_STORAGE_KEY = "shiftChecklistDraftV3";
+const DRAFT_DATABASE_NAME = "shiftChecklistDrafts";
+const DRAFT_DATABASE_STORE = "drafts";
+const DRAFT_MAX_AGE_MS = 20 * 60 * 60 * 1000;
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwu_8JdvWRTPtKaT_8wcXj2F_53LrsfimY9g41QPuMgcV9-SfrhKBFJCF8uvsFPR8ES/exec";
 
 function getSubmissions() {
@@ -224,6 +231,205 @@ function getSubmissions() {
 
 function saveSubmissions(submissions) {
   localStorage.setItem("laundrySubmissions", JSON.stringify(submissions.slice(0, 60)));
+}
+
+function buildDraft() {
+  return {
+    version: 3,
+    savedAt: Date.now(),
+    dateKey: getLocalDateKey(),
+    employee: employeeInput.value,
+    location: locationSelect.value,
+    notes: notesInput.value,
+    items: state.items.map((item) => ({
+      id: item.id,
+      done: Boolean(item.done),
+      photo: item.photo || "",
+      photoName: item.photoName || "",
+    })),
+  };
+}
+
+function draftHasProgress(draft) {
+  return Boolean(
+    draft?.employee?.trim()
+    || draft?.location
+    || draft?.notes?.trim()
+    || draft?.items?.some((item) => item.done || item.photo),
+  );
+}
+
+function setDraftStatus(message, stateName = "") {
+  if (!draftStatus) return;
+  draftStatus.textContent = message;
+  draftStatus.hidden = !message;
+  draftStatus.dataset.state = stateName;
+}
+
+function openDraftDatabase() {
+  return new Promise((resolve, reject) => {
+    if (!("indexedDB" in window)) {
+      reject(new Error("IndexedDB is unavailable."));
+      return;
+    }
+
+    const request = indexedDB.open(DRAFT_DATABASE_NAME, 1);
+    request.onupgradeneeded = () => {
+      const database = request.result;
+      if (!database.objectStoreNames.contains(DRAFT_DATABASE_STORE)) {
+        database.createObjectStore(DRAFT_DATABASE_STORE);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error("Draft database could not be opened."));
+  });
+}
+
+async function writeIndexedDraft(draft) {
+  const database = await openDraftDatabase();
+  await new Promise((resolve, reject) => {
+    const transaction = database.transaction(DRAFT_DATABASE_STORE, "readwrite");
+    transaction.objectStore(DRAFT_DATABASE_STORE).put(draft, DRAFT_STORAGE_KEY);
+    transaction.oncomplete = resolve;
+    transaction.onerror = () => reject(transaction.error || new Error("Draft could not be saved."));
+    transaction.onabort = () => reject(transaction.error || new Error("Draft save was interrupted."));
+  });
+  database.close();
+}
+
+async function readIndexedDraft() {
+  const database = await openDraftDatabase();
+  const draft = await new Promise((resolve, reject) => {
+    const transaction = database.transaction(DRAFT_DATABASE_STORE, "readonly");
+    const request = transaction.objectStore(DRAFT_DATABASE_STORE).get(DRAFT_STORAGE_KEY);
+    request.onsuccess = () => resolve(request.result || null);
+    request.onerror = () => reject(request.error || new Error("Draft could not be read."));
+  });
+  database.close();
+  return draft;
+}
+
+async function deleteIndexedDraft() {
+  const database = await openDraftDatabase();
+  await new Promise((resolve, reject) => {
+    const transaction = database.transaction(DRAFT_DATABASE_STORE, "readwrite");
+    transaction.objectStore(DRAFT_DATABASE_STORE).delete(DRAFT_STORAGE_KEY);
+    transaction.oncomplete = resolve;
+    transaction.onerror = () => reject(transaction.error || new Error("Draft could not be cleared."));
+  });
+  database.close();
+}
+
+function writeLocalDraft(draft) {
+  try {
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function readLocalDraft() {
+  try {
+    return JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
+
+async function saveDraftNow() {
+  clearTimeout(state.draftSaveTimer);
+  if (!state.draftReady) return;
+
+  const draft = buildDraft();
+  const localSaved = writeLocalDraft(draft);
+  let databaseSaved = false;
+  try {
+    await writeIndexedDraft(draft);
+    databaseSaved = true;
+  } catch {
+    databaseSaved = false;
+  }
+
+  if (localSaved || databaseSaved) {
+    const savedTime = new Date(draft.savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    setDraftStatus(`Saved on this phone at ${savedTime}`, "saved");
+  } else {
+    setDraftStatus("This phone could not save the draft. Keep this page open.", "error");
+  }
+}
+
+function scheduleDraftSave() {
+  if (!state.draftReady) return;
+  clearTimeout(state.draftSaveTimer);
+  setDraftStatus("Saving...", "saving");
+  state.draftSaveTimer = setTimeout(saveDraftNow, 300);
+}
+
+function draftIsCurrent(draft) {
+  if (!draft || !draft.savedAt || Date.now() - Number(draft.savedAt) > DRAFT_MAX_AGE_MS) return false;
+  if (draft.dateKey === getLocalDateKey()) return true;
+  return new Date().getHours() < 4 && Date.now() - Number(draft.savedAt) < 10 * 60 * 60 * 1000;
+}
+
+async function getSavedDraft() {
+  const localDraft = readLocalDraft();
+  let databaseDraft = null;
+  try {
+    databaseDraft = await readIndexedDraft();
+  } catch {
+    databaseDraft = null;
+  }
+
+  return [localDraft, databaseDraft]
+    .filter(draftIsCurrent)
+    .sort((a, b) => Number(b.savedAt) - Number(a.savedAt))[0] || null;
+}
+
+async function clearSavedDraft() {
+  clearTimeout(state.draftSaveTimer);
+  try {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch {
+    // IndexedDB can still clear the draft when local storage is unavailable.
+  }
+  try {
+    await deleteIndexedDraft();
+  } catch {
+    // Local storage was cleared even if this browser does not support IndexedDB.
+  }
+  setDraftStatus("", "");
+}
+
+async function restoreDraft() {
+  const draft = await getSavedDraft();
+  if (!draft || !draftHasProgress(draft)) {
+    await clearSavedDraft();
+    return false;
+  }
+
+  employeeInput.value = draft.employee || "";
+  notesInput.value = draft.notes || "";
+  if ([...locationSelect.options].some((option) => option.value === draft.location)) {
+    locationSelect.value = draft.location;
+  }
+
+  const savedItems = (draft.items || []).reduce((result, item) => {
+    result[item.id] = item;
+    return result;
+  }, {});
+  state.items = checklistItems.map((item) => {
+    const saved = savedItems[item.id] || {};
+    return {
+      ...item,
+      done: Boolean(saved.done),
+      photo: saved.photo || "",
+      photoName: saved.photoName || "",
+    };
+  });
+  const savedTime = new Date(draft.savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  setDraftStatus(`Restored from ${savedTime}`, "saved");
+  return true;
 }
 
 function showToast(message) {
@@ -339,7 +545,8 @@ async function readPhoto(file, itemId) {
     item.done = true;
     renderChecklist();
     document.querySelector(`[data-id="${itemId}"]`)?.classList.add("open");
-    showToast("Photo saved.");
+    await saveDraftNow();
+    showToast("Photo saved on this phone.");
   } catch {
     showToast("Photo could not be saved. Try taking it again.");
   }
@@ -348,6 +555,8 @@ async function readPhoto(file, itemId) {
 function resetForm() {
   checklistItems = buildChecklistItems();
   state.items = checklistItems.map((item) => ({ ...item, done: false, photo: "" }));
+  employeeInput.value = "";
+  locationSelect.value = "";
   notesInput.value = "";
   renderChecklist();
   showToast("Checklist reset.");
@@ -436,14 +645,25 @@ async function submitChecklist() {
     proofPhotos,
   };
 
-  submissions.unshift({ ...submission, proofPhotos: [] });
-  saveSubmissions(submissions);
-  resetForm();
-  showThankYou();
+  submitButton.disabled = true;
+  submitButton.textContent = "Submitting...";
+  await saveDraftNow();
 
-  sendSubmissionToBackend(submission).catch(() => {
-    showToast("Saved on this device. Backend upload did not complete.");
-  });
+  try {
+    await sendSubmissionToBackend(submission);
+    submissions.unshift({ ...submission, proofPhotos: [] });
+    saveSubmissions(submissions);
+    await clearSavedDraft();
+    resetForm();
+    showThankYou();
+  } catch {
+    showToast("Could not submit. Your checklist is still saved on this phone.");
+  } finally {
+    submitButton.disabled = false;
+    if (submitButton.textContent === "Submitting...") {
+      submitButton.textContent = "Submit checklist";
+    }
+  }
 }
 
 function groupByEmployee(submissions) {
@@ -661,6 +881,7 @@ checklist.addEventListener("click", (event) => {
     }
     item.done = !item.done;
     renderChecklist();
+    scheduleDraftSave();
   }
 
   if (event.target.closest(".expand-button")) {
@@ -675,14 +896,33 @@ checklist.addEventListener("change", (event) => {
   readPhoto(input.files[0], card.dataset.id);
 });
 
-locationSelect.addEventListener("change", renderChecklist);
-employeeInput.addEventListener("input", updateProgress);
+locationSelect.addEventListener("change", () => {
+  renderChecklist();
+  scheduleDraftSave();
+});
+employeeInput.addEventListener("input", scheduleDraftSave);
+notesInput.addEventListener("input", scheduleDraftSave);
 submitButton.addEventListener("click", submitChecklist);
-reviewButton.addEventListener("click", () => {
+reviewButton.addEventListener("click", async () => {
+  await saveDraftNow();
   window.location.href = "manager-dashboard.html";
 });
 closeDialog.addEventListener("click", () => summaryDialog.close());
 closeThankYou.addEventListener("click", closeThankYouMessage);
 closeThankYouFallback.addEventListener("click", closeThankYouMessage);
 
-renderChecklist();
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") saveDraftNow();
+});
+window.addEventListener("pagehide", () => {
+  if (state.draftReady) writeLocalDraft(buildDraft());
+});
+
+async function initializeChecklist() {
+  const restored = await restoreDraft();
+  state.draftReady = true;
+  renderChecklist();
+  if (restored) showToast("Your saved checklist was restored.");
+}
+
+initializeChecklist();

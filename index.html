@@ -108,6 +108,7 @@
         <div class="meter" aria-hidden="true">
           <span id="progressBar"></span>
         </div>
+        <p class="draft-status" id="draftStatus" role="status" aria-live="polite" hidden></p>
       </section>
 
       <section class="notes-block">
@@ -152,30 +153,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="game.js?v=manager-dashboard-1"></script>
-    <script>
-      (() => {
-        const button = document.getElementById("submitButton");
-        const banner = document.getElementById("successMessage");
-        const employee = document.getElementById("employeeInput");
-        const location = document.getElementById("locationSelect");
-
-        if (!button || !banner || !employee || !location) return;
-
-        button.addEventListener(
-          "click",
-          () => {
-            if (employee.value.trim().length < 2 || !location.value) return;
-
-            setTimeout(() => {
-              banner.hidden = false;
-              button.textContent = "Submitted. Thank you!";
-              banner.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 50);
-          },
-          { capture: true },
-        );
-      })();
-    </script>
+    <script src="game.js?v=draft-recovery-1"></script>
   </body>
 </html>
